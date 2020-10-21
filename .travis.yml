@@ -1,4 +1,5 @@
-language: java
+language: python
+python: '2.7'
 
 services:
   - docker
@@ -39,12 +40,10 @@ jobs:
       #   if: branch = master
       addons:
         ssh_known_hosts: emeline-garo.takima.io
-        apt:
-          packages:
-            - python-pip
-      install:
-        - pip install ansible
-        - ansible --version
-        - printf '[defaults]\nroles_path=../' >ansible.cfg
+        before_install:
+          - sudo apt-get update -qq
+          - sudo apt-get install -qq python-apt
+        install:
+          - pip install ansible==1.9.1
       script:
-        # - ansible-playbook -i ansible/inventories/setup.yml ansible/playbook.yml
+        - ansible-playbook -i ansible/inventories/setup.yml ansible/playbook.yml
