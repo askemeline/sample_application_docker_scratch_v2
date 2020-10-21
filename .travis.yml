@@ -36,10 +36,12 @@ jobs:
         - docker tag $DOCKERHUB_USER/tp-httpd $DOCKERHUB_USER/tp-httpd:1.1
         - docker push $DOCKERHUB_USER/tp-httpd
     - stage: deploy
-    #   if: branch = master
+      #   if: branch = master
       addons:
         ssh_known_hosts: emeline-garo.takima.io
       install:
+        - sudo apt update
+        - apt-get install -y yum
         - sudo yum install ansible
         - sansible-galaxy collection install ericsysmin.docker
       script:
@@ -47,5 +49,4 @@ jobs:
         - eval "$(ssh-agent -s)"
         - chmod 600 /tmp/deploy_rsa
         - ssh-add /tmp/deploy_rsa
-        - ansible-playbook -i ansible/inventories/setup.yml ansible/playbook.yml    
-   
+        - ansible-playbook -i ansible/inventories/setup.yml ansible/playbook.yml
