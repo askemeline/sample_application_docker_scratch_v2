@@ -1,49 +1,20 @@
+# setup environment
+dist: trusty
+sudo: required
 language: python
-python: '2.7'
 
-services:
-  - docker
-
-jobs:
+# setup container matrix
+matrix:
   include:
-    - stage: test
-      if: branch = dev
-      script:
-        - cd simple-api/
-        - mvn clean verify
-        - cd ../
-    - stage: publish_api
-      if: branch = dev
-      script:
-        - docker build -t $DOCKERHUB_USER/tp-api ./simple-api
-      after_success:
-        - echo $DOCKERHUB_PWD | docker login --username $DOCKERHUB_USER --password-stdin
-        - docker tag $DOCKERHUB_USER/tp-api $DOCKERHUB_USER/tp-api:1.1
-        - docker push $DOCKERHUB_USER/tp-api
-    - stage: publish_data
-      if: branch = dev
-      script:
-        - docker build -t $DOCKERHUB_USER/tp-db ./database
-      after_success:
-        - echo $DOCKERHUB_PWD | docker login --username $DOCKERHUB_USER --password-stdin
-        - docker tag $DOCKERHUB_USER/tp-db $DOCKERHUB_USER/tp-db:1.1
-        - docker push $DOCKERHUB_USER/tp-db
-    - stage: publish_httpd
-      if: branch = dev
-      script:
-        - docker build -t $DOCKERHUB_USER/tp-httpd ./httpd
-      after_success:
-        - echo $DOCKERHUB_PWD | docker login --username $DOCKERHUB_USER --password-stdin
-        - docker tag $DOCKERHUB_USER/tp-httpd $DOCKERHUB_USER/tp-httpd:1.1
-        - docker push $DOCKERHUB_USER/tp-httpd
-    - stage: deploy
-      #   if: branch = master
-      addons:
-        ssh_known_hosts: emeline-garo.takima.io
-        before_install:
-          - sudo apt-get update -qq
-          - sudo apt-get install -qq python-apt
-        install:
-          - pip install ansible==1.9.1
-      script:
-        - ansible-playbook -i ansible/inventories/setup.yml ansible/playbook.yml
+    - env: OS='ubuntu:14.04'
+    - env: OS='centos:7'
+
+before_install:
+  - docker pull $OS
+
+install:
+  - docker run -d $OS /bin/sh -c "provision container if you do not have a prebuilt image and are instead using base images"
+
+script:
+  - docker run -d $OS /bin/sh -c "ansible tests"
+  - ansible-playbook -i ansible/inventories/setup.yml ansible/playbook.yml
