@@ -1,0 +1,38 @@
+language: java
+
+services:
+  - docker
+
+jobs:
+  include:
+    - stage: test
+      script:
+        - cd simple-api/
+        - mvn clean verify
+        - cd ../
+    - stage: publish_api
+      if: branch = main
+      script:
+        - docker build -t $DOCKERHUB_USER/tp-api ./simple-api
+      after_success:
+        - echo $DOCKERHUB_PWD | docker login --username $DOCKERHUB_USER --password-stdin
+        - docker tag $DOCKERHUB_USER/tp-api $DOCKERHUB_USER/tp-api:1.1
+        - docker push $DOCKERHUB_USER/tp-api
+    - stage: publish_data
+      if: branch = main
+      script:
+        - docker build -t $DOCKERHUB_USER/tp-db ./database
+      after_success:
+        - echo $DOCKERHUB_PWD | docker login --username $DOCKERHUB_USER --password-stdin
+        - docker tag $DOCKERHUB_USER/tp-db $DOCKERHUB_USER/tp-db:1.1
+        - docker push $DOCKERHUB_USER/tp-db
+    - stage: publish_httpd
+      if: branch = main
+      script:
+        - docker build -t $DOCKERHUB_USER/tp-httpd ./httpd
+      after_success:
+        - echo $DOCKERHUB_PWD | docker login --username $DOCKERHUB_USER --password-stdin
+        - docker tag $DOCKERHUB_USER/tp-httpd $DOCKERHUB_USER/tp-httpd:1.1
+        - docker push $DOCKERHUB_USER/tp-httpd
+      
+   
