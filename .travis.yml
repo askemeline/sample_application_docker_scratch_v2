@@ -6,6 +6,7 @@ services:
 jobs:
   include:
     - stage: test
+    if: branch = dev
       script:
         - cd simple-api/
         - mvn clean verify
@@ -39,10 +40,7 @@ jobs:
       addons:
         ssh_known_hosts: emeline-garo.takima.io
       install:
-        - sudo apt update
-        - sudo apt install software-properties-common
-        - sudo apt-add-repository --yes --update ppa:ansible/ansible
-        - sudo apt install ansible
+        - sudo yum install ansible
         - sansible-galaxy collection install ericsysmin.docker
       script:
         - openssl aes-256-cbc -K $encrypted_ec0015db4ac4_key -iv $encrypted_ec0015db4ac4_iv -in id_rsa.enc -out /tmp/deploy_rsa -d
