@@ -6,7 +6,7 @@ services:
 jobs:
   include:
     - stage: test
-    if: branch = dev
+      if: branch = dev
       script:
         - cd simple-api/
         - mvn clean verify
