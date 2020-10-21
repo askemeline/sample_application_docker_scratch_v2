@@ -47,4 +47,4 @@ jobs:
         - ansible --version
         - printf '[defaults]\nroles_path=../' >ansible.cfg
       script:
-        - ansible-playbook -i ansible/inventories/setup.yml ansible/playbook.yml
+        # - ansible-playbook -i ansible/inventories/setup.yml ansible/playbook.yml
