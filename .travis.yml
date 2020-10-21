@@ -4,8 +4,8 @@ services:
 jobs:
   include:
     - language: java
-    - stage: test
       if: branch = dev
+    - stage: test
       script:
         - cd simple-api/
         - mvn clean verify
